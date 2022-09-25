@@ -69,10 +69,7 @@ class AppstreamCollection {
       if (id == null) {
         throw FormatException('Missing component ID');
       }
-      var package = component.getElement('pkgname');
-      if (package == null) {
-        throw FormatException('Missing component package');
-      }
+      var package = component.getElement('pkgname') ?? id;
       var name = _getXmlTranslatedString(component, 'name');
       var summary = _getXmlTranslatedString(component, 'summary');
       var description = _getXmlTranslatedString(component, 'description');
@@ -162,8 +159,14 @@ class AppstreamCollection {
       }
 
       var screenshots = <AppstreamScreenshot>[];
-      for (var screenshot
-          in elements.where((e) => e.name.local == 'screenshot')) {
+      for (var screenshot in elements
+          .where((e) => e.name.local == 'screenshot')
+          .followedBy(elements
+              .where((e) => e.name.local == 'screenshots')
+              .map((e) => e.children
+                  .whereType<XmlElement>()
+                  .where((p0) => p0.name.local == 'screenshot'))
+              .expand((element) => element))) {
         var isDefault = screenshot.getAttribute('type') == 'default';
         var caption = _getXmlTranslatedString(screenshot, 'caption');
         var images = <AppstreamImage>[];
@@ -333,7 +336,7 @@ class AppstreamCollection {
           in elements.where((e) => e.name.local == 'content_rating')) {
         var type = contentRating.getAttribute('type');
         if (type == null) {
-          throw FormatException('Missing content rating type');
+          continue;
         }
         var ratings = <String, AppstreamContentRating>{};
         for (var contentAttribute in contentRating.children
@@ -847,7 +850,8 @@ Map<String, String> _getXmlTranslatedString(XmlElement parent, String name) {
   for (var element in parent.children
       .whereType<XmlElement>()
       .where((e) => e.name.local == name)) {
-    var lang = element.getAttribute('lang') ?? 'C';
+    var lang =
+        element.getAttribute('lang') ?? element.getAttribute('xml:lang') ?? 'C';
     value[lang] = element.innerXml;
   }
 
@@ -896,7 +900,9 @@ AppstreamUrlType _parseUrlType(String typeName) {
     'help': AppstreamUrlType.help,
     'donation': AppstreamUrlType.donation,
     'translate': AppstreamUrlType.translate,
-    'contact': AppstreamUrlType.contact
+    'contact': AppstreamUrlType.contact,
+    'vcs-browser': AppstreamUrlType.vcsBrowser,
+    'contribute': AppstreamUrlType.contribute,
   }[typeName];
   if (type == null) {
     throw FormatException("Unknown url type '$typeName'");
@@ -942,6 +948,7 @@ AppstreamIssueType _parseIssueType(String typeName) {
 AppstreamDBusType _parseDBusType(String typeName) {
   var type = {
     'user': AppstreamDBusType.user,
+    'session': AppstreamDBusType.session,
     'system': AppstreamDBusType.system
   }[typeName];
   if (type == null) {
