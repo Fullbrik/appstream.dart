@@ -69,7 +69,9 @@ class AppstreamCollection {
       if (id == null) {
         throw FormatException('Missing component ID');
       }
-      var package = component.getElement('pkgname') ?? id;
+      var package = component.getElement('pkgname') ??
+          component.getElement('bundle') ??
+          id;
       var name = _getXmlTranslatedString(component, 'name');
       var summary = _getXmlTranslatedString(component, 'summary');
       var description = _getXmlTranslatedString(component, 'description');
