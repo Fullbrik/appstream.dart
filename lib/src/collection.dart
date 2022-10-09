@@ -72,6 +72,9 @@ class AppstreamCollection {
       var package = component.getElement('pkgname') ??
           component.getElement('bundle') ??
           id;
+      var bundle = component.getElement('bundle') ??
+          component.getElement('pkgname') ??
+          id;
       var name = _getXmlTranslatedString(component, 'name');
       var summary = _getXmlTranslatedString(component, 'summary');
       var description = _getXmlTranslatedString(component, 'description');
@@ -357,6 +360,7 @@ class AppstreamCollection {
           id: id.text,
           type: type,
           package: package.text,
+          bundle: bundle.text,
           name: name,
           summary: summary,
           description: description,
@@ -796,6 +800,7 @@ class AppstreamCollection {
           id: id,
           type: type,
           package: package,
+          bundle: null,
           name: _parseYamlTranslatedString(name),
           summary: _parseYamlTranslatedString(summary),
           description: description != null

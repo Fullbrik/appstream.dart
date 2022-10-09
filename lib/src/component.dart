@@ -41,6 +41,9 @@ class AppstreamComponent {
   /// The name of the package this component is provided by.
   final String? package;
 
+  /// The name of the bundle (mostly used by flatpak) this component is provided by.
+  final String? bundle;
+
   /// Human readable name of the component, keyed by language.
   final Map<String, String> name;
 
@@ -97,6 +100,7 @@ class AppstreamComponent {
       {required this.id,
       required this.type,
       required this.package,
+      required this.bundle,
       required this.name,
       required this.summary,
       this.description = const {},
